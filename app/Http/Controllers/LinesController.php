@@ -21,12 +21,18 @@ class LinesController extends Controller
     private function getLines($id = null) {
         $cacheItem = $id === null ? 'lines' : 'line-' . $id;
 
-        if(Cache::has($cacheItem)) {
-            $res = Cache::get($cacheItem);
+        if($id === null) {
+            $res = $this->getLinesStatus();
+            Cache::put($cacheItem, $res);
         } else {
-            $res = $this->getLinesStatus($id);
-            Cache::put($cacheItem, $res, now()->addMinutes(5));
+            if(Cache::has($cacheItem)) {
+                $res = Cache::get($cacheItem);
+            } else {
+                $res = $this->getLinesStatus($id);
+                Cache::put($cacheItem, $res, now()->addMinutes(5));
+            }
         }
+
         return json_decode($res);
     }
 
@@ -40,9 +46,9 @@ class LinesController extends Controller
 
     public function view($id) {
         $line = $this->getLines($id);
-        
         $timestamp = strtotime($line[0]->modified);
         $updated = date('d/m/Y - H:s', $timestamp);
+
         return view('view', ['line' => $line[0], 'updated' => $updated]);
     }
 }
