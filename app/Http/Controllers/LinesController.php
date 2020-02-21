@@ -18,7 +18,7 @@ class LinesController extends Controller
         ]);
         return (string)$res->getBody();
     }
-    private function getLines($id = null) {
+    public function getLines($id = null) {
         $cacheItem = $id === null ? 'lines' : 'line-' . $id;
 
         if($id === null) {
